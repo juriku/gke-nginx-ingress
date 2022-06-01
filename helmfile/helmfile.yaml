@@ -7,6 +7,7 @@ repositories:
   - name: ingress-nginx
     url: https://kubernetes.github.io/ingress-nginx
 
+
 ## helm default settings
 helmDefaults:
   wait: true
@@ -16,6 +17,7 @@ helmDefaults:
 
 missingFileHandler: Error
 
+
 ## templates and yaml anchors
 templates:
 
@@ -23,6 +25,7 @@ templates:
   valuesOnly: &default-values
     values:
       - ../helm/values/{{`{{ .Release.Name }}`}}/defaults.yaml.gotmpl
+
 
 ## environment states
 environments:
@@ -39,13 +42,6 @@ releases:
     wait: true
     <<: *default-values
 
-  ## ingress-api-fallback
-  - name: ingress-api-fallback
-    namespace: default
-    chart: baseCharts/ingress
-    version: 6.3.0
-    <<: *default-values
-
   ## cert manager for Let's Encrypt
   - name: cert-manager
     chart: jetstack/cert-manager
@@ -53,3 +49,10 @@ releases:
     wait: true
     namespace: cert-manager
     <<: *default-values
+
+  # ## ingress-test
+  # - name: ingress-test
+  #   namespace: default
+  #   chart: baseCharts/ingress
+  #   version: 6.3.0
+  #   <<: *default-values

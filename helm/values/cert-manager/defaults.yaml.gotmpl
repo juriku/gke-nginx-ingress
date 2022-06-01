@@ -1,0 +1,21 @@
+# ref: https://github.com/jetstack/cert-manager/tree/master/deploy/charts/cert-manager
+# https://github.com/cert-manager/cert-manager/blob/2c254545d762f53b265ee45d5c0e80b0d17bfa1d/deploy/charts/cert-manager/values.yaml
+
+global:
+
+  leaderElection:
+    # Override the namespace used to store the ConfigMap for leader election
+    namespace: "cert-manager"
+
+installCRDs: true
+
+podDnsPolicy: "None"
+podDnsConfig:
+  nameservers:
+    - "8.8.8.8"
+    - "1.1.1.1"
+
+ingressShim:
+  defaultIssuerName: "letsencrypt-production"
+  defaultIssuerKind: "ClusterIssuer"
+  defaultIssuerGroup: "cert-manager.io"

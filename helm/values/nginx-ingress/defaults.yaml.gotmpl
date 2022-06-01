@@ -1,0 +1,73 @@
+## nginx configuration
+## Ref: https://github.com/kubernetes/ingress-nginx/blob/8ca389235d5ba6b218c66aecbd3c645e82e377f1/charts/ingress-nginx/values.yaml
+##
+controller:
+
+  ingressClass: nginx
+
+  config:
+    server-tokens: "false" # Security: turn off sending of "Server" header containing version identifiers
+    use-forwarded-headers: "false" # If false, NGINX ignores incoming X-Forwarded-* headers, filling them with the request information it sees. Use this option if NGINX is exposed directly to the internet, or it's behind a L3/packet-based load balancer that doesn't alter the source IP in the packets.
+    keep-alive: "600" # Sets the time during which a keep-alive client connection will stay open on the server side. The zero value disables keep-alive client connections. (default 75s)
+    keep-alive-requests: "2000" # Sets the maximum number of requests that can be served through one keep-alive connection (default 100)
+    upstream-keepalive-timeout: "300" # Sets a timeout during which an idle keepalive connection to an upstream server will stay open. default: 60
+    client-max-body-size: "2m" # Sets the value of the client_max_body_size directive.
+    proxy-buffer-size: "16k" # https://www.getpagespeed.com/server-setup/nginx/tuning-proxy_buffer_size-in-nginx
+    log-format-escape-json: "true"
+    log-format-upstream: '{
+        "@timestamp": "$time_iso8601",
+        "remote_addr": "$remote_addr",
+        "x-forward-for": "$proxy_add_x_forwarded_for",
+        "request_id": "$req_id",
+        "remote_user": "$remote_user",
+        "bytes_sent": $bytes_sent,
+        "request_time": $request_time,
+        "status": $status,
+        "vhost": "$host",
+        "request_proto": "$server_protocol",
+        "path": "$uri",
+        "request_query": "$args",
+        "request_length": $request_length,
+        "duration": $request_time,
+        "method": "$request_method",
+        "http_referrer": "$http_referer",
+        "http_user_agent": "$http_user_agent"
+      }'
+
+  ## DaemonSet or Deployment
+  ##
+  kind: DaemonSet
+
+  minReadySeconds: 10
+
+  ## terminationGracePeriodSeconds
+  ## wait up to five minutes for the drain of connections
+  ##
+  terminationGracePeriodSeconds: 300
+
+  resources:
+    limits:
+      memory: 500Mi
+    requests:
+      cpu: 10m
+      memory: 100Mi
+
+  admissionWebhooks:
+    enabled: false
+
+  service:
+    internal:
+      enabled: true
+      annotations:
+        cloud.google.com/load-balancer-type: "Internal"
+    loadBalancerIP: {{ requiredEnv "NGINX_IP_ADDRESS" }}
+
+    ## Set external traffic policy to: "Local" to preserve source IP on
+    ## providers supporting it
+    ## Ref: https://kubernetes.io/docs/tutorials/services/source-ip/#source-ip-for-services-with-typeloadbalancer
+    externalTrafficPolicy: "Local"
+
+## Default 404 backend
+##
+defaultBackend:
+  enabled: true

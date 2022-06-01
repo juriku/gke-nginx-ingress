@@ -7,26 +7,39 @@ provider "kubernetes" {
 }
 
 module "gke" {
-  source                            = "terraform-google-modules/kubernetes-engine/google"
+  source                            = "terraform-google-modules/kubernetes-engine/google//modules/private-cluster"
   version                           = "~> 21.1"
 
   project_id                        = var.gcp_project
   name                              = "cluster-test-1"
+  regional                          = true
+
   release_channel                   = "STABLE"
   region                            = var.region
-  network                           = "default"
-  subnetwork                        = "default"
+  network                           = "vpc-test"
+  subnetwork                        = "subnet-01"
   ip_range_pods                     = "gke-01-pods"
   ip_range_services                 = "gke-01-services"
+  master_ipv4_cidr_block            = "172.16.0.16/28"
+
+  service_account                   = "create"
 
   add_master_webhook_firewall_rules = true
+  add_cluster_firewall_rules        = false
+  add_shadow_firewall_rules         = false
+  firewall_priority                 = 1000
+
   http_load_balancing               = false
   network_policy                    = false
   horizontal_pod_autoscaling        = true
   enable_vertical_pod_autoscaling   = false
-  create_service_account            = false
+  remove_default_node_pool          = true
+  create_service_account            = true
   filestore_csi_driver              = true
   enable_shielded_nodes             = true
+
+  enable_private_nodes              = true
+  enable_private_endpoint           = false
 
   master_authorized_networks = [
     {
@@ -49,6 +62,15 @@ module "gke" {
     }
   ]
 
+  node_pools_oauth_scopes = {
+    all = [
+      "https://www.googleapis.com/auth/trace.append",
+      "https://www.googleapis.com/auth/service.management.readonly",
+      "https://www.googleapis.com/auth/monitoring",
+      "https://www.googleapis.com/auth/devstorage.read_only",
+      "https://www.googleapis.com/auth/servicecontrol",
+    ]
+  }
   node_pools_tags = {
     all       = ["internal", "k8s"]
   }
