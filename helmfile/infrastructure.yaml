@@ -1,0 +1,55 @@
+## ref: https://github.com/roboll/helmfile
+
+## helm repositories
+repositories:
+  - name: baseCharts
+    url: https://juriku.github.io/helm-charts
+  - name: ingress-nginx
+    url: https://kubernetes.github.io/ingress-nginx
+
+## helm default settings
+helmDefaults:
+  wait: true
+  force: false
+  timeout: 360
+  historyMax: 10
+
+missingFileHandler: Error
+
+## templates and yaml anchors
+templates:
+
+  ## full values anchors
+  valuesOnly: &default-values
+    values:
+      - ../helm/values/{{`{{ .Release.Name }}`}}/defaults.yaml.gotmpl
+
+## environment states
+environments:
+  default:
+
+
+## defining all releases
+releases:
+
+  ## nginx-ingress
+  - name: nginx-ingress
+    chart: ingress-nginx/ingress-nginx
+    version: 3.40.0
+    wait: true
+    <<: *default-values
+
+  ## ingress-api-fallback
+  - name: ingress-api-fallback
+    namespace: default
+    chart: baseCharts/ingress
+    version: 6.3.0
+    <<: *default-values
+
+  ## cert manager for Let's Encrypt
+  - name: cert-manager
+    chart: jetstack/cert-manager
+    version: v1.7.1
+    wait: true
+    namespace: cert-manager
+    <<: *default-values
