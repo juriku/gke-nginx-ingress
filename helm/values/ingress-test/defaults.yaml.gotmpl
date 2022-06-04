@@ -2,7 +2,13 @@
 ingress:
   enabled: true
   class: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-http"
   hosts:
-    - host: test.com
-      serviceName: test
+    - host: {{ requiredEnv "DNS_HOST_NAME" }}
+      serviceName: app-test
       servicePort: 80
+  tls:
+    - hosts:
+      - {{ requiredEnv "DNS_HOST_NAME" }}
+      secretName: tls.{{ requiredEnv "DNS_HOST_NAME" }}

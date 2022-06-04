@@ -5,7 +5,7 @@ global:
 
   leaderElection:
     # Override the namespace used to store the ConfigMap for leader election
-    namespace: "cert-manager"
+    namespace: {{ .Release.Namespace }}
 
 installCRDs: true
 
@@ -16,6 +16,6 @@ podDnsConfig:
     - "1.1.1.1"
 
 ingressShim:
-  defaultIssuerName: "letsencrypt-production"
+  defaultIssuerName: "letsencrypt-http"
   defaultIssuerKind: "ClusterIssuer"
   defaultIssuerGroup: "cert-manager.io"
