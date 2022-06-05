@@ -1,5 +1,5 @@
 ## nginx configuration
-## Ref: https://github.com/kubernetes/ingress-nginx/blob/8ca389235d5ba6b218c66aecbd3c645e82e377f1/charts/ingress-nginx/values.yaml
+## Ref: https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/values.yaml
 ##
 controller:
 
@@ -13,6 +13,15 @@ controller:
     upstream-keepalive-timeout: "300" # Sets a timeout during which an idle keepalive connection to an upstream server will stay open. default: 60
     client-max-body-size: "2m" # Sets the value of the client_max_body_size directive.
     proxy-buffer-size: "16k" # https://www.getpagespeed.com/server-setup/nginx/tuning-proxy_buffer_size-in-nginx
+    enable-modsecurity: 'true' # Enables ModSecurity functionality
+    enable-owasp-modsecurity-crs: 'true' # Enables loading the core rule set (optional, can be enabled on specific ingresses only instead)
+    allow-snippet-annotations: "true"
+    modsecurity-snippet: |-
+      SecRuleEngine On
+      SecRequestBodyAccess On
+    hsts: "true" # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#hsts
+    hsts-include-subdomains: "true"
+    hsts-max-age: "15724800"
     log-format-escape-json: "true"
     log-format-upstream: '{
         "@timestamp": "$time_iso8601",

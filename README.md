@@ -64,7 +64,7 @@ export NGINX_IP_ADDRESS
 
 ## install all helm deployments
 helmfile --file=helmfile/helmfile.yaml sync --concurrency=1
-# helmfile --selector=name=ingress-test --file=helmfile/helmfile.yaml sync
+# helmfile --selector=name=ingress-test --file=helmfile/helmfile.yaml sync --skip-deps
 ```
 add IP address to your DNS host
 
