@@ -6,6 +6,7 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(module.gke.ca_certificate)
 }
 
+## https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/tree/master/modules/private-cluster
 module "gke" {
   source                            = "terraform-google-modules/kubernetes-engine/google//modules/private-cluster"
   version                           = "~> 21.1"
